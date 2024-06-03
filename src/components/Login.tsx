@@ -21,12 +21,18 @@ const Login: React.FC<LoginProps> = ({ setKey, setIsLoggedIn, setUserData }) => 
       const response = await api.login({
         user: { email, password },
       });
-      const { token, data: { user } } = response.data;
+      const { token, token_expires_at, data: { user, roles } } = response.data;
       console.log('User logged in:', user);
+      console.log('User roles:', roles);
       localStorage.setItem('token', token);
+      localStorage.setItem('token_expires_at', token_expires_at);
+      localStorage.setItem('userData', JSON.stringify({ ...user, roles: roles }));
       setKey(Date.now());
       setIsLoggedIn(true);
-      setUserData(user);
+      setUserData({
+        ...user,
+        roles: roles,
+      });
       navigate('/');
     } catch (error) {
       setError('Invalid email or password');
