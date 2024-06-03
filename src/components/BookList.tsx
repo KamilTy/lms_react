@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import BooksApi from '../utils/BooksApi';
 import { Book, UserData, AddBook } from '../components/types/types';
 import AddBookModal from './AddBookModal';
+import { FaBook, FaPencilAlt, FaPlus, FaTimes } from 'react-icons/fa';
 
 interface BookListProps {
   userData: UserData | null;
@@ -27,17 +28,36 @@ const BookList: React.FC<BookListProps> = ({ userData }) => {
 
   const handleAddBook = async (book: AddBook) => {
     try {
-      // Make a POST request to add the new book
       const newBook = await BooksApi.createBook(book);
-
-      // Add the returned book to the books array
       setBooks([...books, newBook]);
-
-      // Close the modal
       setModalOpen(false);
     } catch (error) {
       console.error('Failed to add book:', error);
     }
+  };
+
+  const handleEditBook = (bookId: number) => {
+    // TODO: Implement edit book functionality
+    console.log(`Edit book with ID: ${bookId}`);
+  };
+
+  const handleDeleteBook = async (bookId: number) => {
+    try {
+      await BooksApi.deleteBook(bookId);
+      setBooks(books.filter(book => book.id !== bookId));
+    } catch (error) {
+      console.error(`Failed to delete book with ID: ${bookId}`, error);
+    }
+  };
+
+  const handleAddCopy = (bookId: number) => {
+    // TODO: Implement add copy functionality
+    console.log(`Add copy for book with ID: ${bookId}`);
+  };
+
+  const handleBorrowBook = (bookId: number) => {
+    // TODO: Implement borrow book functionality
+    console.log(`Borrow book with ID: ${bookId}`);
   };
 
   return (
@@ -61,6 +81,7 @@ const BookList: React.FC<BookListProps> = ({ userData }) => {
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ISBN</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Copies available</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -76,6 +97,17 @@ const BookList: React.FC<BookListProps> = ({ userData }) => {
                 <td className="px-6 py-4 whitespace-nowrap">{book.genre}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{book.isbn}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{book.copies_available}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {userData?.roles.some(role => role.name === 'Librarian') ? (
+                    <div className="flex space-x-3">
+                      <FaPlus title="Add Copy" onClick={() => handleAddCopy(book.id)} />
+                      <FaPencilAlt title="Edit" onClick={() => handleEditBook(book.id)} />
+                      <FaTimes title="Delete" onClick={() => handleDeleteBook(book.id)} />
+                    </div>
+                  ) : (
+                    <FaBook title="Borrow" onClick={() => handleBorrowBook(book.id)} />
+                  )}
+                </td>
               </tr>
             ))
           )}
